@@ -5,7 +5,7 @@
 const firebaseConfig = {
   apiKey: "AIzaSyAz_OqatzQPJLl54EqIJejRM89BVEUrNYk",
   authDomain: "regalos-62bb9.firebaseapp.com",
-  databaseURL: "https://console.firebase.google.com/project/regalos-62bb9/database/regalos-62bb9-default-rtdb/data/~2F",
+  databaseURL: "https://regalos-62bb9-default-rtdb.firebaseio.com/",
   projectId: "regalos-62bb9",
   storageBucket: "regalos-62bb9.firebasestorage.app",
   messagingSenderId: "1053038796358",
