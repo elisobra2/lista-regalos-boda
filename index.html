@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lista de Regalos — Elí & Lizbeth</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Alex+Brush&family=Jost:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="eyebrow">Lista de Regalos</div>
+    <h1>Nuestra Lista</h1>
+    <div class="sub">Elí & Lizbeth · 26 de septiembre, 2026</div>
+  </header>
+
+  <div class="note">
+    Selecciona un regalo y quedará <b>reservado automáticamente</b> para ti.
+    Una vez elegido, ya no estará disponible para otros invitados.
+  </div>
+
+  <div id="list"></div>
+
+  <button class="refresh" onclick="loadItems()">↻ Actualizar lista</button>
+  <div class="status" id="status">Cargando...</div>
+</div>
+
+<div class="modal-bg" id="modalBg">
+  <div class="modal">
+    <h4>Reservar regalo</h4>
+    <input id="guestName" type="text" placeholder="Tu nombre y apellido" maxlength="40">
+    <div class="modal-actions">
+      <button class="cancel" onclick="closeModal()">Cancelar</button>
+      <button class="confirm" onclick="confirmReserve()">Confirmar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script src="script.js"></script>
+</body>
+</html>
