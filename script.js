@@ -3,13 +3,13 @@
 // (ver PASO 3 de las instrucciones)
 // ==========================================================
 const firebaseConfig = {
-  apiKey: "TU_API_KEY",
-  authDomain: "TU_PROYECTO.firebaseapp.com",
-  databaseURL: "https://TU_PROYECTO-default-rtdb.firebaseio.com",
-  projectId: "TU_PROYECTO",
-  storageBucket: "TU_PROYECTO.appspot.com",
-  messagingSenderId: "000000000000",
-  appId: "TU_APP_ID"
+  apiKey: "AIzaSyAz_OqatzQPJLl54EqIJejRM89BVEUrNYk",
+  authDomain: "regalos-62bb9.firebaseapp.com",
+  databaseURL: "https://console.firebase.google.com/project/regalos-62bb9/database/regalos-62bb9-default-rtdb/data/~2F",
+  projectId: "regalos-62bb9",
+  storageBucket: "regalos-62bb9.firebasestorage.app",
+  messagingSenderId: "1053038796358",
+  appId: "1:1053038796358:web:0e26b6da8596b832e27447"
 };
 
 // Lista de regalos — edita nombres, descripciones y precios aquí
