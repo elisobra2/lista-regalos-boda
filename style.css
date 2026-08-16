@@ -139,6 +139,18 @@ button.reserve:active{transform:scale(.96);}
 .status{
   text-align:center;font-size:11.5px;color:#8a97a3;margin-top:26px;
 }
+.aporte-list{
+  list-style:none;padding:0;margin:8px 0 0;
+  font-size:11.5px;color:var(--navy);
+}
+.aporte-list li{
+  padding:3px 0;border-top:1px dashed var(--line);
+}
+.aporte-list li:first-child{border-top:none;}
+.aporte-empty{
+  font-size:11.5px;color:#8a97a3;font-style:italic;margin:8px 0 0;
+}
+.aporte-item{align-items:flex-start;}
 .refresh{
   display:block;margin:14px auto 0;background:none;border:none;
   color:var(--blue);font-family:'Jost',sans-serif;font-size:12px;

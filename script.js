@@ -13,8 +13,8 @@ const firebaseConfig = {
 
 // Lista de regalos — edita nombres, descripciones y precios aquí
 const GIFTS = [
-  { id: "Juego_de_Ollas", name: "Juego de Ollas ", desc: "", price: "", buyUrl: "" },
-  { id: "colchon_2plazas", name: "Colchón 2 plazas", desc: "", price: "", buyUrl: ""  },
+  { id: "Juego_de_Ollas", name: "Juego de Ollas", desc: "", price: "", buyUrl: "" },
+  { id: "colchon_2plazas", name: "Colchón 2 plazas", desc: "", price: "", buyUrl: "" },
   { id: "licuadora", name: "Licuadora", desc: "", price: "", buyUrl: "" },
   { id: "waflera", name: "Waflera", desc: "", price: "", buyUrl: "" },
   { id: "batidora", name: "Batidora", desc: "", price: "", buyUrl: "" },
@@ -45,14 +45,14 @@ const GIFTS = [
   { id: "mesa_escritorio", name: "Escritorio", desc: "", price: "", buyUrl: "" },
   { id: "perchero_ropa", name: "Perchero para colgar ropa", desc: "", price: "", buyUrl: "" },
   { id: "fotolibro_boda", name: "Fotolibro de boda", desc: "", price: "", buyUrl: "" },
-  { id: "refrieradora", name: "Refrigeradora", desc: "", price: "", buyUrl: "" },
-  { id: "mueble_de_sala", name: "Mueble de sala", desc: "", price: "", buyUrl: "" },
-  { id: "televisor_smart_tv", name: "Televisor Smart TV", desc: "", price: "", buyUrl: "" },
+  { id: "refrieradora", name: "Aporte para refrigeradora", desc: "", price: "", buyUrl: "" },
+  { id: "mueble_de_sala", name: "Aporte para mueble de sala", desc: "", price: "", buyUrl: "" },
+  { id: "televisor_smart_tv", name: "Aporte de televisor", desc: "", price: "", buyUrl: "" },
   { id: "juego_comedor_cocina", name: "Juego de comedor cocina", desc: "", price: "", buyUrl: "" },
-  { id: "alexa", name: "Alexa Echo Do", desc: "", price: "", buyUrl: "" },
+  { id: "alexa", name: "Alexa Echo Dot", desc: "", price: "", buyUrl: "" },
   { id: "set_maleta_viaje", name: "Set de maleta para viaje", desc: "", price: "", buyUrl: "" },
-  { id: "tablet xiaomi", name: "Tablet Xiaomi", desc: "", price: "", buyUrl: "" },
-  { id: "cocina_empotrable", name: "Cocina empotrable", desc: "", price: "", buyUrl: "" },
+  { id: "tablet_xiaomi", name: "Tablet Xiaomi", desc: "", price: "", buyUrl: "" },
+  { id: "cocina_empotrable", name: "Aporte para cocina", desc: "", price: "", buyUrl: "" },
   { id: "campana_de_cocina", name: "Campana de cocina", desc: "", price: "", buyUrl: "" },
   { id: "mueble_cocina", name: "Mueble para cocina", desc: "", price: "", buyUrl: "" },
   { id: "silla_escritorio", name: "Silla para escritorio", desc: "", price: "", buyUrl: "" },
@@ -72,7 +72,8 @@ const GIFTS = [
   { id: "set_jardineria", name: "Set de jardinería", desc: "", price: "", buyUrl: "" },
   { id: "thermo", name: "Thermo", desc: "", price: "", buyUrl: "" },
   { id: "juego_cuchillos", name: "Juego de cuchillos", desc: "", price: "", buyUrl: "" },
-  { id: "alfombra", name: "Alfombra", desc: "", price: "", buyUrl: "" }
+  { id: "aporte_luna_miel", name: "Aporte para luna de miel", desc: "", price: "", buyUrl: "" },
+  { id: "aporte_departamento", name: "Aporte para el departamento", desc: "", price: "", buyUrl: "" }
 ];
 
 // ==========================================================
@@ -80,6 +81,7 @@ const GIFTS = [
 // ==========================================================
 let db = null;
 let currentReserveId = null;
+let currentIsAporte = false;
 
 function initFirebase() {
   if (!window.firebase) {
@@ -100,6 +102,10 @@ function escapeHtml(str) {
   return d.innerHTML;
 }
 
+function isAporte(gift) {
+  return gift.name.toLowerCase().startsWith('aporte');
+}
+
 async function loadItems() {
   if (!db && !initFirebase()) return;
   document.getElementById('status').textContent = 'Cargando...';
@@ -107,58 +113,120 @@ async function loadItems() {
   container.innerHTML = '';
 
   for (const gift of GIFTS) {
-    let reservedBy = null;
-    try {
-      const snap = await db.ref('regalos/' + gift.id).get();
-      if (snap.exists()) reservedBy = snap.val().name;
-    } catch (e) {
-      console.error(e);
-    }
-
     const buyUrl = gift.buyUrl ||
       ('https://www.google.com/search?tbm=shop&q=' + encodeURIComponent(gift.name + ' Perú'));
 
     const item = document.createElement('div');
-    item.className = 'item' + (reservedBy ? ' taken' : '');
-    item.innerHTML = `
-      <div class="info">
-        <h3>${escapeHtml(gift.name)}</h3>
-        <p>${escapeHtml(gift.desc)}</p>
-        <span class="price">${escapeHtml(gift.price)}</span>
-        <a class="buy-link" href="${buyUrl}" target="_blank" rel="noopener">🛒 Dónde comprar</a>
-      </div>
-      <div class="action">
-        ${reservedBy
-          ? `<span class="taken-badge">Reservado por ${escapeHtml(reservedBy)}</span>`
-          : `<button class="reserve" data-id="${gift.id}">Reservar</button>`
+
+    if (isAporte(gift)) {
+      // ---- Regalo tipo "aporte": varios invitados pueden contribuir ----
+      let contributions = [];
+      try {
+        const snap = await db.ref('aportes/' + gift.id).get();
+        if (snap.exists()) {
+          contributions = Object.values(snap.val());
         }
-      </div>
-    `;
+      } catch (e) {
+        console.error(e);
+      }
+
+      const total = contributions.reduce((sum, c) => sum + (parseFloat(c.amount) || 0), 0);
+      const listHtml = contributions.length
+        ? `<ul class="aporte-list">${contributions.map(c =>
+            `<li>${escapeHtml(c.name)} — S/ ${escapeHtml(String(c.amount))}</li>`
+          ).join('')}</ul>`
+        : `<p class="aporte-empty">Sé el primero en aportar</p>`;
+
+      item.className = 'item aporte-item';
+      item.innerHTML = `
+        <div class="info" style="flex:1;">
+          <h3>${escapeHtml(gift.name)}</h3>
+          <p>${escapeHtml(gift.desc)}</p>
+          ${contributions.length ? `<span class="price">Total aportado: S/ ${total}</span>` : ''}
+          <a class="buy-link" href="${buyUrl}" target="_blank" rel="noopener">🛒 Dónde comprar</a>
+          ${listHtml}
+        </div>
+        <div class="action">
+          <button class="reserve aportar-btn" data-id="${gift.id}">Aportar</button>
+        </div>
+      `;
+    } else {
+      // ---- Regalo normal: se bloquea para un solo invitado ----
+      let reservedBy = null;
+      try {
+        const snap = await db.ref('regalos/' + gift.id).get();
+        if (snap.exists()) reservedBy = snap.val().name;
+      } catch (e) {
+        console.error(e);
+      }
+
+      item.className = 'item' + (reservedBy ? ' taken' : '');
+      item.innerHTML = `
+        <div class="info">
+          <h3>${escapeHtml(gift.name)}</h3>
+          <p>${escapeHtml(gift.desc)}</p>
+          <span class="price">${escapeHtml(gift.price)}</span>
+          <a class="buy-link" href="${buyUrl}" target="_blank" rel="noopener">🛒 Dónde comprar</a>
+        </div>
+        <div class="action">
+          ${reservedBy
+            ? `<span class="taken-badge">Reservado por ${escapeHtml(reservedBy)}</span>`
+            : `<button class="reserve" data-id="${gift.id}">Reservar</button>`
+          }
+        </div>
+      `;
+    }
+
     container.appendChild(item);
   }
 
-  container.querySelectorAll('button.reserve').forEach(btn => {
-    btn.addEventListener('click', () => openModal(btn.dataset.id));
+  container.querySelectorAll('button.reserve:not(.aportar-btn)').forEach(btn => {
+    btn.addEventListener('click', () => openModal(btn.dataset.id, false));
+  });
+  container.querySelectorAll('button.aportar-btn').forEach(btn => {
+    btn.addEventListener('click', () => openModal(btn.dataset.id, true));
   });
 
   document.getElementById('status').textContent =
     'Lista actualizada · ' + new Date().toLocaleTimeString('es-PE');
 }
 
-function openModal(id) {
+function openModal(id, aporteMode) {
   currentReserveId = id;
+  currentIsAporte = aporteMode;
   document.getElementById('guestName').value = '';
+  document.getElementById('guestAmount').value = '';
+  document.getElementById('amountField').style.display = aporteMode ? 'block' : 'none';
+  document.getElementById('modalTitle').textContent = aporteMode ? 'Hacer un aporte' : 'Reservar regalo';
   document.getElementById('modalBg').classList.add('show');
 }
 
 function closeModal() {
   document.getElementById('modalBg').classList.remove('show');
   currentReserveId = null;
+  currentIsAporte = false;
 }
 
 async function confirmReserve() {
   const name = document.getElementById('guestName').value.trim();
   if (!name) { alert('Por favor ingresa tu nombre'); return; }
+
+  if (currentIsAporte) {
+    const amount = parseFloat(document.getElementById('guestAmount').value);
+    if (!amount || amount <= 0) { alert('Ingresa un monto válido'); return; }
+
+    try {
+      await db.ref('aportes/' + currentReserveId).push({
+        name, amount, date: new Date().toISOString()
+      });
+      closeModal();
+      loadItems();
+    } catch (e) {
+      console.error(e);
+      alert('Hubo un problema al registrar tu aporte. Intenta de nuevo.');
+    }
+    return;
+  }
 
   try {
     const ref = db.ref('regalos/' + currentReserveId);

@@ -17,7 +17,8 @@
 
   <div class="note">
     Selecciona un regalo y quedará <b>reservado automáticamente</b> para ti.
-    Una vez elegido, ya no estará disponible para otros invitados.
+    Una vez elegido, ya no estará disponible para otros invitados. Los regalos que dicen
+    "Aporte" son distintos: varias personas pueden contribuir con el monto que quieran.
   </div>
 
   <div id="list"></div>
@@ -28,8 +29,11 @@
 
 <div class="modal-bg" id="modalBg">
   <div class="modal">
-    <h4>Reservar regalo</h4>
+    <h4 id="modalTitle">Reservar regalo</h4>
     <input id="guestName" type="text" placeholder="Tu nombre y apellido" maxlength="40">
+    <div id="amountField" style="display:none;">
+      <input id="guestAmount" type="number" min="1" placeholder="Monto a aportar (S/)">
+    </div>
     <div class="modal-actions">
       <button class="cancel" onclick="closeModal()">Cancelar</button>
       <button class="confirm" onclick="confirmReserve()">Confirmar</button>
